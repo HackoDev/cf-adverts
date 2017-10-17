@@ -1,0 +1,11 @@
+-e .
+coverage==4.4.1
+django-mock-queries==0.0.15
+Faker==0.7.18
+freezegun==0.3.8
+future==0.16.0
+mock==2.0.0
+pytest==3.2.1
+pytest-cov==2.4.0
+pytest-django==3.1.2
+pytest-faker==2.0.0

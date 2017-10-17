@@ -1,0 +1,10 @@
+.coverage
+*.pyc
+.idea
+media
+static
+__pycache__
+venv
+*.egg-info
+.cache
+*.sqlite3

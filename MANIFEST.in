@@ -1,0 +1,4 @@
+include README.md
+recursive-include cf_adverts/fixtures *
+recursive-include cf_adverts/templates *
+recursive-include cf_adverts/static *
