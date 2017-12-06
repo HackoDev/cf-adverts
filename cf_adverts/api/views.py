@@ -8,7 +8,7 @@ from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
-from cf_core.api import PageNumberPaginator
+from cf_core.api.views import PageNumberPaginator
 
 from cf_adverts.api.permissions import HasEstimatePermission
 from .filters import ProjectFilter, ProjectEventFilter, AdvertEstimateFilter
