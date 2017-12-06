@@ -1,7 +1,8 @@
 import logging
+from django.utils.translation import ugettext_lazy as _
 
-from .event import Event
-from ..signals import (
+from cf_adverts.models.event import Event
+from cf_adverts.signals import (
     project_created, project_edited, project_approved
 )
 
@@ -18,7 +19,7 @@ def handle_logger_event(advert, base_type, description, percent):
     logger.info(
         "New event #{pk}. "
         "Type: '{base_type}'. "
-        "Project: {advert}. "
+        "Advert: {advert}. "
         "Description: {description}. "
         "Percent: {percent}".format(
             pk=event.id,
@@ -32,7 +33,7 @@ def handle_logger_event(advert, base_type, description, percent):
 
 def payment_signal_receiver(**kwargs):
     payment = kwargs.get('sender')
-    description = '{full_name} внес пожертвование'.format(
+    description = '{full_name} payed to advert'.format(
         full_name=payment.full_name or payment.email
     )
     event_kwargs = {
@@ -46,7 +47,7 @@ def payment_signal_receiver(**kwargs):
 
 def resource_signal_receiver(**kwargs):
     resource = kwargs.get('sender')
-    description = '{full_name} помог ресурсами/материалами'.format(
+    description = '{full_name} added new resources'.format(
         full_name=resource.full_name or resource.email
     )
 
@@ -63,11 +64,11 @@ def resource_signal_receiver(**kwargs):
 def percent_signal_receiver(**kwargs):
     payment, percent = kwargs.get('sender'), kwargs.get('percent')
     if percent == 100:
-        description = '{percent} Цель достигнута'.format(
+        description = '{percent}: target has reached'.format(
             percent=percent
         )
     else:
-        description = '{percent} процентов цели было достигнуто'.format(
+        description = '{percent} percent changed'.format(
             percent=percent
         )
     event_kwargs = dict(
@@ -82,7 +83,7 @@ def percent_signal_receiver(**kwargs):
 
 def project_create_receiver(**kwargs):
     project = kwargs.get('sender')
-    description = 'Проект создан'
+    description = _('project created')
 
     event_kwargs = dict(
         base_type=Event.TYPE_CHOICES.PROJECT_CREATED,
@@ -96,7 +97,7 @@ def project_create_receiver(**kwargs):
 
 def project_edit_receiver(**kwargs):
     advert = kwargs.get('sender')
-    description = 'Проект отредактирован'
+    description = _('project changed')
 
     event_kwargs = dict(
         base_type=Event.TYPE_CHOICES.PROJECT_EDITED,
@@ -110,9 +111,9 @@ def project_edit_receiver(**kwargs):
 
 def role_join_receiver(**kwargs):
     role = kwargs.get('sender')
-    description = '{short_name} присоединился к проекту в качестве {role_name}'.format(
+    description = '{short_name} joined to project with role {role_name}'.format(
         short_name=role.user.get_short_name(),
-        role_name='{}а'.format(role.get_role_name())
+        role_name=role.get_role_name()
     )
 
     event_kwargs = dict(
@@ -127,7 +128,7 @@ def role_join_receiver(**kwargs):
 
 def project_approve_receiver(**kwargs):
     role = kwargs.get('sender')
-    description = 'Проект прошел проверку'
+    description = _('advert approved')
 
     event_kwargs = dict(
         base_type=Event.TYPE_CHOICES.PROJECT_EDITED,

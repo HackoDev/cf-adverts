@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
@@ -10,32 +11,32 @@ __all__ = [
 
 class Event(TimeStampedModel):
     """
-    События проекта.
-    Будет использоваться для отображения временой шкалы и событий на ней 
-    по конкретному проекту.
+    Events for project.
+    Would be used to display time-line on project page.
     """
 
     TYPE_CHOICES = Choices(
-        ('CUSTOM', "Ручное создание"),
-        ('PROJECT_CREATED', "Проект создан"),
-        ('PROJECT_EDITED', "Проект отредактирован"),
-        ('USER_JOINED', "Новый участник"),
-        ('PERCENT_CHANGED', "Достижение процентов цели"),
-        ('PROJECT_DONE', "Проект завершен"),
-        ('PAYMENT_RECEIVED', "Принят платеж"),
-        ('RESOURCE_RECEIVED', "Принят материал/ресурс")
+        ('CUSTOM', _('custom event')),
+        ('PROJECT_CREATED', _('advert created')),
+        ('PROJECT_EDITED', _('advert changed')),
+        ('USER_JOINED', _('user joined')),
+        ('PERCENT_CHANGED', _('percent changed')),
+        ('PROJECT_DONE', _('advert done')),
+        ('PAYMENT_RECEIVED', _('payment received')),
+        ('RESOURCE_RECEIVED', _('resource received'))
     )
 
     advert = models.ForeignKey(
         'cf_adverts.advert',
-        verbose_name="объявление",
+        verbose_name=_('advert'),
         related_name='events'
     )
 
-    base_type = models.CharField("тип события", max_length=64,
+    base_type = models.CharField(verbose_name=_('base type'), max_length=64,
                                  choices=TYPE_CHOICES)
-    percent = models.IntegerField("процент сборов")
-    description = models.TextField("описание", default='', blank=True)
+    percent = models.IntegerField(verbose_name=_('percent'))
+    description = models.TextField(verbose_name=_('description'), default='',
+                                   blank=True)
 
     def get_event_time(self):
         return timezone.localtime(self.created)
@@ -45,5 +46,5 @@ class Event(TimeStampedModel):
 
     class Meta:
         ordering = ['-created']
-        verbose_name = "событие объявления"
-        verbose_name_plural = "события объявлений"
+        verbose_name = _('advert event')
+        verbose_name_plural = _('advert events')

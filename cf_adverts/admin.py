@@ -1,9 +1,10 @@
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 
 from cf_core.admin import ModerationNoteInLine, BaseModerationModelAdmin
-from .models import (
+from cf_adverts.models import (
     DraftAdvert, BannedAdvert, NewAdvert, PublishedAdvert, Category, Event
 )
 
@@ -18,22 +19,23 @@ class ProjectAdmin(BaseModerationModelAdmin):
     def get_owner_approved(self, obj):
         return obj.owner.profile.is_available
     get_owner_approved.boolean = True
-    get_owner_approved.short_description = "НКО прошел модерацию"
+    get_owner_approved.short_description = _('profile has approved')
 
     def get_owner_url(self, obj):
         return '<a href="{url}">{name}</a>'.format(
             url=reverse('admin:users_profile_change', args=[obj.owner.profile.id]),
             name=obj.owner.profile.title or obj.owner.get_full_name()
         )
-    get_owner_url.short_description = "Инициатор"
+    get_owner_url.short_description = _('owner')
     get_owner_url.allow_tags = True
 
     def get_origin(self, obj):
         if obj.origin_id:
-            return '<a href="{url}">Оригинал</a>'.format(
+            return '<a href="{url}">{text}</a>'.format(
+                text=_('original'),
                 url=reverse('admin:projects_publishedproject_change', args=[obj.origin_id])
             )
-    get_origin.short_description = "Оригинал"
+    get_origin.short_description = _('original')
     get_origin.allow_tags = True
 
     def get_form(self, request, obj=None, **kwargs):

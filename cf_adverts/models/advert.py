@@ -1,19 +1,18 @@
 import logging
 
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericRelation
 from django.db.models.signals import post_save
+from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 from django.db import models, transaction
 from model_utils.models import TimeStampedModel
 from easy_thumbnails.fields import ThumbnailerImageField
 
 from cf_core import managers as core_managers
-
-from cf_adverts import utils
-from .. import managers
 from cf_core.models import BaseModerateModel
-from ..signals import project_created, project_edited, project_status_changed
+from cf_core import utils
+from cf_adverts import managers
+from cf_adverts.signals import project_created, project_edited, project_status_changed
 
 logger = logging.getLogger(__name__)
 
@@ -37,11 +36,11 @@ def get_now_date():
 class Advert(BaseModerateModel, TimeStampedModel):
     AUDIT_APPROVED_CHOICES = core_managers.MODERATE_STATUS_CHOICES
 
-    title = models.CharField("название", max_length=2048, default='')
+    title = models.CharField(verbose_name=_('title'), max_length=2048, default='')
 
     location = models.ForeignKey(
         'cf_core.Location',
-        verbose_name="район",
+        verbose_name=_('location'),
         related_name='projects',
         default=None,
         null=True
@@ -49,88 +48,101 @@ class Advert(BaseModerateModel, TimeStampedModel):
 
     category = models.ForeignKey(
         'cf_adverts.Category',
-        verbose_name="категория",
+        verbose_name=_('category'),
         related_name='projects',
         on_delete=models.PROTECT
     )
 
-    logo = ThumbnailerImageField("большой блок", default=None, null=True)
-    small_logo = ThumbnailerImageField("маленький блок")
-    video = models.URLField(verbose_name="ссылка на youtube video",
+    logo = ThumbnailerImageField(verbose_name=_('logo'), default=None,
+                                 null=True)
+    small_logo = ThumbnailerImageField(verbose_name=_('small logo'))
+    video = models.URLField(verbose_name=_('youtube video link'),
                             default='', blank=True)
 
-    short_description = models.TextField("короткое описание", default='')
+    short_description = models.TextField(
+        verbose_name=_('short description'),
+        default=''
+    )
 
-    description = models.TextField("подробное описание", default='')
-
-    status = models.ForeignKey('cf_core.Status', verbose_name="статус")
+    description = models.TextField(verbose_name=_('description'), default='')
+    status = models.ForeignKey('cf_core.Status', verbose_name=_('status'))
 
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        verbose_name="инициатор",
+        verbose_name=_('owner'),
         related_name='owned_projects'
     )
 
     origin = models.OneToOneField(
         'self',
-        verbose_name="оригинал",
+        verbose_name=_('original'),
         related_name='draft',
         editable=False,
         default=None,
         null=True
     )
 
-    ended_at = models.DateField("завершение проекта", null=True, blank=True)
-    total_amount = models.BigIntegerField("общая сумма для сборов", default=0,
-                                          help_text="Цель")
-    collected_amount = models.BigIntegerField("собранные средства", default=0)
+    ended_at = models.DateField(
+        verbose_name=_('ended at'),
+        null=True,
+        blank=True
+    )
+    total_amount = models.BigIntegerField(
+        verbose_name=_('total amount'),
+        default=0,
+        help_text=_('goal')
+    )
+    collected_amount = models.BigIntegerField(
+        verbose_name=_('collected amount'),
+        default=0
+    )
 
     articles_of_association = models.FileField(
-        verbose_name="устав",
+        verbose_name=_('articles of association'),
         default='',
         blank=True
     )
 
     articles_of_association_approved = models.NullBooleanField(
-        verbose_name="устав подтвержден",
+        verbose_name=_('articles of association approved'),
         default=False
     )
 
-    extract_from_egrul = models.FileField(verbose_name="Выписка из ЮГРЮЛ",
+    extract_from_egrul = models.FileField(verbose_name=_('extract from egrul'),
                                           default='', blank=True)
     extract_from_egrul_approved = models.NullBooleanField(
-        verbose_name="выписка из ЮГРЮЛ подтверждена",
+        verbose_name=_('extract from the Unified State Register of Legal Entities is confirmed'),
         default=False
     )
 
     general_meeting_decision = models.FileField(
-        verbose_name="решение общего собрания об утверждении проекта",
+        verbose_name=_('the decision of the general meeting on the approval of the project'),
         default='',
         blank=True
     )
 
     general_meeting_decision_approved = models.NullBooleanField(
-        verbose_name="файл решения общего собрания подтвержден",
+        verbose_name=_('the file of the decision of the general meeting is confirmed'),
         default=False
     )
 
     auditor = models.ForeignKey(
         'cf_users.User',
-        verbose_name="аудитор",
+        verbose_name=_('auditor'),
         related_name='project_audits',
         null=True,
         blank=True
     )
 
     auditor_notes = models.TextField(
-        verbose_name="заметка аудитора",
+        verbose_name=_('auditor notes'),
         max_length=1024,
         default='',
         blank=True
     )
 
     auditor_approved = models.NullBooleanField(
-        verbose_name="подтвержден аудитором",
+        verbose_name=_('approved by auditor'),
         default=None,
         choices=AUDIT_APPROVED_CHOICES
     )
@@ -187,12 +199,14 @@ class Advert(BaseModerateModel, TimeStampedModel):
 
     @classmethod
     def autocomplete_search_fields(cls):
+        """ autocomplete search fields for django-jet """
         return 'title',
 
     def get_collected_percent(self):
         if self.collected_amount:
             return int(
-                self.collected_amount * 100.0 / float(self.total_amount))
+                self.collected_amount * 100.0 / float(self.total_amount)
+            )
         return 0
 
     def has_draft(self):
@@ -206,8 +220,6 @@ class Advert(BaseModerateModel, TimeStampedModel):
 
     @transaction.atomic
     def get_or_create_draft(self):
-        # assert self.is_available, _("Project must be moderated")
-
         draft = self.get_draft()
 
         if draft:
@@ -237,6 +249,11 @@ class Advert(BaseModerateModel, TimeStampedModel):
 
     @transaction.atomic
     def apply_draft_to_origin(self):
+        """
+        Apply draft instance to origin.
+
+        :return:
+        """
 
         original = self.origin
         logger.info("Draft project #{pk} start applying...".format(
@@ -262,7 +279,7 @@ class Advert(BaseModerateModel, TimeStampedModel):
         return original
 
     def get_base_permissions(self, user):
-        # TODO: вынесено в отдельное приложение ролей
+        # FIXME: moved to another app
         return self.roles.filter(
             is_active=True,
             user_id=user.id,
@@ -287,7 +304,7 @@ class Advert(BaseModerateModel, TimeStampedModel):
         return permissions.filter(can_manage_content=True).exists()
 
     def get_active_roles(self):
-        # TODO: вынесено в отдельное приложение ролей
+        # FIXME: moved to another app
         return self.get_roles().filter(
             is_available=BaseModerateModel.MODERATE_STATUS_CHOICES.ALLOWED,
             is_active=True
@@ -303,7 +320,7 @@ class Advert(BaseModerateModel, TimeStampedModel):
         return self.get_active_roles().count() + 1
 
     def roles_dict(self):
-        # TODO: вынесено в отдельное приложение ролей
+        # FIXME: moved to another app
         roles = self.get_active_roles()
         result_dict = {
             'staffs': []
@@ -344,63 +361,63 @@ class Advert(BaseModerateModel, TimeStampedModel):
         super(Advert, self).save(*args, **kwargs)
 
     class Meta:
-        verbose_name = "объявление"
-        verbose_name_plural = "объявления"
+        verbose_name = _('advert')
+        verbose_name_plural = _('adverts')
 
 
 class AdvertEstimate(TimeStampedModel):
-    advert = models.ForeignKey('Advert', verbose_name="проект",
+    advert = models.ForeignKey('Advert', verbose_name=_('advert'),
                                related_name='estimates')
-    title = models.CharField("работа/материал", max_length=512)
-    amount = models.IntegerField("сумма в рубля")
+    title = models.CharField(_('title'), max_length=512)
+    amount = models.IntegerField(verbose_name=_('amount'))
 
     class Meta:
-        verbose_name = "смета проекта"
-        verbose_name_plural = "сметы проектов"
+        verbose_name = _('advert estimate')
+        verbose_name_plural = _('advert estimates')
 
 
 class PublishedAdvert(Advert):
     """
-    Используется в качестве опубликованного проекта.
+    Would be used as published advert.
     """
 
     objects = managers.PublishedAdvertManager()
 
     class Meta:
         proxy = True
-        verbose_name = "объявление"
-        verbose_name_plural = "объявления"
+        verbose_name = _('published advert')
+        verbose_name_plural = _('published adverts')
 
 
 class NewAdvert(Advert):
     """
-    Используется в качестве нового объявления.
+    Would be used as new advert.
     """
 
     objects = managers.WaitAdvertManager()
 
     class Meta:
         proxy = True
-        verbose_name = "новое объявление"
-        verbose_name_plural = "новые объявления"
+        verbose_name = _('new advert')
+        verbose_name_plural = _('new adverts')
 
 
 class BannedAdvert(Advert):
     """
-    Используется в качестве заблокированного объявления.
+    Would be used as blocked advert
     """
 
     objects = managers.BannedProjectManager()
 
     class Meta:
         proxy = True
-        verbose_name = "заблокированное объявление"
-        verbose_name_plural = "заблокированное объявление"
+        verbose_name = _('blocked advert')
+        verbose_name_plural = _('blocked adverts')
 
 
 class DraftAdvert(Advert):
     """
-    Используется в качестве черновика.
+    Would be used as draft advert.
     """
 
     exclude_fields = [
@@ -417,6 +434,15 @@ class DraftAdvert(Advert):
     objects = managers.DraftProjectManager()
 
     def process_moderate(self, moderation_note, commit=True, with_check=True):
+        """
+        Moderate instance.
+
+        :param moderation_note: ModerationNote instance
+        :param commit: bool
+        :param with_check: bool
+        :return:
+        """
+
         super(DraftAdvert, self).process_moderate(
             moderation_note,
             commit=False,
@@ -425,8 +451,6 @@ class DraftAdvert(Advert):
         from cf_adverts.tasks import process_apply_draft_project
 
         if self.is_available:
-            # self.status = config.draft_apply_status
-
             self.process_status = self.MODERATE_PROCESS_TYPES.APPLY
             moderation_note.instance = self.origin
             moderation_note.save()
@@ -438,8 +462,8 @@ class DraftAdvert(Advert):
 
     class Meta:
         proxy = True
-        verbose_name = "черновик объявления"
-        verbose_name_plural = "черновики объявлений"
+        verbose_name = _('draft advert')
+        verbose_name_plural = _('draft adverts')
 
 
 post_save.connect(Advert.send_create_signal, sender=Advert)

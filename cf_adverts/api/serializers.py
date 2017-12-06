@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .. import models
+from cf_adverts import models
 
 
 class ProjectShortSerializer(serializers.ModelSerializer):
@@ -59,6 +59,12 @@ class EstimateListUpdateSerializer(EstimateDetailSerializer):
     id = serializers.IntegerField(required=False)
 
     def create(self, validated_data):
+        """
+        Would be used for updating/creating objects instead separated methods.
+
+        :param validated_data: dict
+        :return:
+        """
         instance = None
         if 'id' in validated_data:
             instance = self.Meta.model.objects.filter(

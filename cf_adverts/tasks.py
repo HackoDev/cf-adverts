@@ -11,9 +11,9 @@ logger = logging.getLogger(__name__)
 @shared_task()
 def process_apply_draft_project(draft_id):
     """
-    Применение изменения черновика в оригинал.
+    Apply draft changes to original.
     
-    :param draft_id: int ID черновика объявления
+    :param draft_id: int
     :return: 
     """
 

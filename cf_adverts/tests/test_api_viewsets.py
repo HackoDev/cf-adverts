@@ -26,7 +26,7 @@ JSON_TYPE = 'application/json'
 
 class BaseTestViewSetMixin(object):
     """
-    Базовый класс для тестирвоание ViewSet-ов.
+    Base test class for testing ViewSets.
     """
 
     viewset = None
@@ -55,7 +55,7 @@ class TestProjectAPI(BaseTestViewSetMixin):
             'location': location.id,
             'total_amount': 1000
         }
-        req = rf.post('/api/v1/adverts/',
+        req = rf.post(reverse('api:adverts-list'),
                       data=project_data,
                       content_type=MULTIPART_CONTENT)
         force_authenticate(req, user=profile.user)
@@ -159,6 +159,7 @@ class TestProjectAPI(BaseTestViewSetMixin):
         force_authenticate(req, user=profile.user)
         response = self.get_response_as_viewset({'put': 'update'}, req,
                                                 pk=advert.id)
+        # TODO: add asserts for checking response
 
     def test_small_logo_failed_update_project(self, rf, profile, advert, text_file):
         project_data = {

@@ -1,12 +1,11 @@
-Приложение для проекта CrowdFunding.
+Application for CrowdFunding project.
 
-Основные компонены:
-1. объявления и связанные с ними сущности.
-2. rest-api в рамках модуля
-3. unit-тесты для тестирования функционала модуля
+Base components:
+1. adverts and another related models.
+2. rest-api for models
+3. unit-tests
 
-Не является конечной реализацией, разработан в рамках примера кода и 
-возможного дальнейшего развития пакеты.
+It's not finally code version, would be used as code example. 
 
-#### Запуск тестов:
+#### Run tests:
     make tests

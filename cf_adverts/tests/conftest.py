@@ -109,7 +109,7 @@ def another_advert(db, user, start_status, location, category):
 @pytest.fixture
 def available_advert(db, advert):
     """
-    Объявление, разрешенное к публикации.
+    Published Advert.
     """
 
     advert.is_available = Advert.MODERATE_STATUS_CHOICES.ALLOWED
@@ -120,10 +120,10 @@ def available_advert(db, advert):
 @pytest.fixture
 def picture(faker):
     """
-    Шестнадцатиричное представление картинки.
-    Используется для генерации изображения подаваемого FileField.
+    Hexadecimal representation of the picture.
+    Used to generate the image of the filed FileField.
     
-    Источник: http://stackoverflow.com/a/30290754
+    Source: http://stackoverflow.com/a/30290754
     """
 
     sequence = binascii.unhexlify(
@@ -137,8 +137,7 @@ def picture(faker):
 @pytest.fixture
 def text_file(faker):
     """
-    Текстовый файл.
-    Вынесен в фикстуры для переиспользования.
+    Text file as fixture for reusable.
     """
 
     return ContentFile(b'test', faker.file_name(extension='txt'))

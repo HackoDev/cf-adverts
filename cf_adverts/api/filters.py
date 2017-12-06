@@ -1,5 +1,5 @@
 import django_filters
-from .. import models
+from cf_adverts import models
 
 
 class NumberInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
