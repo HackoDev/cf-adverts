@@ -28,7 +28,7 @@ setup(
         'django-admin-sortable2==0.6.16',
         'django-model-utils==3.0.0',
         'django-phonenumber-field==1.3.0',
-        'djangorestframework==3.7.0',
+        'djangorestframework==3.9.1',
         'easy-thumbnails==2.4.2',
         'phonenumberslite==8.8.3',
         'pytz==2017.2',
