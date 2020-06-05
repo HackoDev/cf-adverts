@@ -21,7 +21,7 @@ setup(
     long_description=README,
     include_package_data=True,
     install_requires=[
-        'Django==1.11.23',
+        'Django==1.11.29',
         'Pillow==6.2.0',
         'django-filter==1.0.4',
         'celery==4.1.0',
