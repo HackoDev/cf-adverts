@@ -22,7 +22,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'Django==1.11.23',
-        'Pillow==6.2.0',
+        'Pillow==8.1.1',
         'django-filter==1.0.4',
         'celery==4.1.0',
         'django-admin-sortable2==0.6.16',
