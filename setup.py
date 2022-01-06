@@ -24,7 +24,7 @@ setup(
         'Django==1.11.23',
         'Pillow==6.2.0',
         'django-filter==1.0.4',
-        'celery==4.1.0',
+        'celery==5.2.2',
         'django-admin-sortable2==0.6.16',
         'django-model-utils==3.0.0',
         'django-phonenumber-field==1.3.0',
